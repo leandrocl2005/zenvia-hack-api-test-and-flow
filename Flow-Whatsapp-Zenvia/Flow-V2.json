@@ -1,0 +1,352 @@
+{
+  "alias": "ProjetoFinal",
+  "description": "",
+  "steps": [
+    {
+      "id": "step05",
+      "type": "sendWhatsAppActivity",
+      "label": "Pegar prod_serv_estab",
+      "contents": [
+        {
+          "type": "text/plain",
+          "payload": {
+            "text": "Ok! Por favor, descreva o estabelecimento, produto ou serviço.\n"
+          }
+        }
+      ]
+    },
+    {
+      "id": "step09",
+      "type": "whatsappEvent",
+      "variables": {
+        "prod_serv_estab": "payload"
+      }
+    },
+    {
+      "id": "step013",
+      "type": "sendWhatsAppActivity",
+      "contents": [
+        {
+          "type": "text/plain",
+          "payload": {
+            "text": "Não entendi. Informe *procurar* ou *oferecer*, "
+          }
+        }
+      ]
+    },
+    {
+      "id": "step019",
+      "type": "apiActivity",
+      "label": "Chamada de API /procurar",
+      "properties": {
+        "from": "#{#random.randomAlphanumeric(12)}"
+      },
+      "contents": [
+        {
+          "type": "application/json",
+          "payload": {
+            "json": {
+              "httpMethod": "POST",
+              "url": "https://eldereng.pythonanywhere.com/api/procura",
+              "payload": {
+                "oferta_procura": "#{oferta_procura}",
+                "endereco_com_cep": "#{latitude},#{longitude}",
+                "prod_serv_estab": "#{prod_serv_estab}",
+                "telefone": "#{telefone}"
+              },
+              "httpHeaders": {
+                "Content-Type": "application/json"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "step02",
+      "type": "whatsappEvent",
+      "label": "oferta_procura",
+      "variables": {
+        "oferta_procura": "payload"
+      }
+    },
+    {
+      "id": "idEventoInicial",
+      "type": "whatsappEvent",
+      "label": "Evento inicial",
+      "properties": {
+        "startEvent": "true",
+        "appId": "whatsapp_chatbot",
+        "appType": "chatbot"
+      },
+      "variables": {
+        "whatsappFrom": "'twisty-lilac'",
+        "telefone": "from"
+      },
+      "conditions": [
+        {
+          "type": "channelSourceCondition",
+          "values": [
+            "twisty-lilac"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "step03",
+      "type": "branch",
+      "label": "Procurar oferecer decisão"
+    },
+    {
+      "id": "step018",
+      "type": "apiActivity",
+      "label": "Chamada de API /oferecer",
+      "properties": {
+        "from": "#{#random.randomAlphanumeric(12)}"
+      },
+      "contents": [
+        {
+          "type": "application/json",
+          "payload": {
+            "json": {
+              "httpMethod": "POST",
+              "url": "https://eldereng.pythonanywhere.com/api/oferecer",
+              "payload": {
+                "oferta_procura": "#{oferta_procura}",
+                "endereco_com_cep": "#{latitude},#{longitude}",
+                "prod_serv_estab": "#{prod_serv_estab}",
+                "telefone": "#{telefone}"
+              },
+              "httpHeaders": {
+                "Content-Type": "application/json"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "step012",
+      "type": "sendWhatsAppActivity",
+      "label": "Responde procura",
+      "properties": {
+        "from": "#{session['whatsappFrom']}"
+      },
+      "contents": [
+        {
+          "type": "text/plain",
+          "payload": {
+            "text": "Veja abaixo o que encontramos para você!\n\n* #{response.data.Resultado1.Empresa}*\n *Endereço*:  #{response.data.Resultado1.Endereco}\n *Telefone:* #{response.data.Resultado1.Telefone}\n *Distância:* #{response.data.Resultado1.Distancia}\n\n* #{response.data.Resultado2.Empresa}*\n *Endereço*:  #{response.data.Resultado2.Endereco}\n *Telefone:* #{response.data.Resultado2.Telefone}\n *Distância:* #{response.data.Resultado2.Distancia}\n  \nBons negócios!"
+          }
+        }
+      ]
+    },
+    {
+      "id": "step020",
+      "type": "sendWhatsAppActivity",
+      "contents": [
+        {
+          "type": "text/plain",
+          "payload": {
+            "text": "Ok, sua geolocalização é: \"#{latitude}\" e \"#{longitude}\"\n\nVocê gostaria de *procurar* ou *oferecer*, *estabelecimentos*, *produtos* ou *serviços* próximos a você?"
+          }
+        }
+      ]
+    },
+    {
+      "id": "step016",
+      "type": "branch",
+      "label": "Lat e Long"
+    },
+    {
+      "id": "step014",
+      "type": "sendWhatsAppActivity",
+      "properties": {
+        "from": "#{session['whatsappFrom']}"
+      },
+      "contents": [
+        {
+          "type": "text/plain",
+          "payload": {
+            "text": "Informe sua Geolocalização"
+          }
+        }
+      ]
+    },
+    {
+      "id": "step021",
+      "type": "sendWhatsAppActivity",
+      "contents": [
+        {
+          "type": "text/plain",
+          "payload": {
+            "text": "geolocalização inválida. Informe novamente."
+          }
+        }
+      ]
+    },
+    {
+      "id": "step04",
+      "type": "sendWhatsAppActivity",
+      "label": "Pegar prod_serv_estab",
+      "contents": [
+        {
+          "type": "text/plain",
+          "payload": {
+            "text": "Ok! Por favor, descreva o estabelecimento, produto ou serviço.\n"
+          }
+        }
+      ]
+    },
+    {
+      "id": "step017",
+      "type": "sendWhatsAppActivity",
+      "label": "Mensagem final",
+      "properties": {
+        "from": "#{session['whatsappFrom']}"
+      },
+      "contents": [
+        {
+          "type": "text/plain",
+          "payload": {
+            "text": "Ok, fizemos o registro solicitado. Aguarde novos clientes entrarem em contato e bons negócios!!!"
+          }
+        }
+      ]
+    },
+    {
+      "id": "step015",
+      "type": "whatsappEvent",
+      "variables": {
+        "answer": "payload"
+      }
+    },
+    {
+      "id": "step011",
+      "type": "whatsappEvent",
+      "variables": {
+        "prod_serv_estab": "payload"
+      }
+    },
+    {
+      "id": "idEventoFinal",
+      "type": "endEvent",
+      "label": "label 3",
+      "properties": {
+        "endEvent": "true"
+      }
+    }
+  ],
+  "connections": [
+    {
+      "from": "step03",
+      "to": "step05",
+      "label": "oferecer",
+      "conditions": [
+        {
+          "type": "keywordCondition",
+          "values": [
+            "oferecer"
+          ]
+        }
+      ]
+    },
+    {
+      "from": "step03",
+      "to": "step013",
+      "label": "Inválido",
+      "isDefault": true
+    },
+    {
+      "from": "step09",
+      "to": "step019"
+    },
+    {
+      "from": "step016",
+      "to": "step020",
+      "label": "type",
+      "conditions": [
+        {
+          "type": "elCondition",
+          "expression": "type==\"msg\""
+        }
+      ]
+    },
+    {
+      "from": "step015",
+      "to": "step016"
+    },
+    {
+      "from": "idEventoInicial",
+      "to": "step014"
+    },
+    {
+      "from": "step011",
+      "to": "step018"
+    },
+    {
+      "from": "step05",
+      "to": "step011"
+    },
+    {
+      "from": "step021",
+      "to": "step015"
+    },
+    {
+      "from": "step014",
+      "to": "step015"
+    },
+    {
+      "from": "step018",
+      "to": "step017"
+    },
+    {
+      "from": "step017",
+      "to": "idEventoFinal"
+    },
+    {
+      "from": "step04",
+      "to": "step09"
+    },
+    {
+      "from": "step016",
+      "to": "step021",
+      "label": "Inválido",
+      "isDefault": true
+    },
+    {
+      "from": "step020",
+      "to": "step02"
+    },
+    {
+      "from": "step012",
+      "to": "idEventoFinal"
+    },
+    {
+      "from": "step02",
+      "to": "step03"
+    },
+    {
+      "from": "step019",
+      "to": "step012"
+    },
+    {
+      "from": "step013",
+      "to": "step02"
+    },
+    {
+      "from": "step03",
+      "to": "step04",
+      "label": "procurar",
+      "conditions": [
+        {
+          "type": "keywordCondition",
+          "values": [
+            "procurar"
+          ]
+        }
+      ]
+    }
+  ],
+  "defaultConversationalChannel": "WHATSAPP"
+}
